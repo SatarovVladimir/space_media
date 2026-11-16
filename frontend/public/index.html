@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#090d19">
+    <meta name="description" content="Космическая медиаплатформа для авторов и читателей">
+    <title>Орбита — истории о космосе</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <div class="starfield" aria-hidden="true"></div>
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="Орбита — главная"><span class="brand-mark" aria-hidden="true">✦</span><span>ОРБИТА<span class="brand-dot">.</span></span></a>
+      <label class="search-box" for="search-input"><span aria-hidden="true">⌕</span><input id="search-input" type="search" placeholder="Найти статью или тему..." autocomplete="off"><kbd>⌘ K</kbd></label>
+      <div class="topbar-actions">
+        <button id="login-open" class="button button-quiet" type="button">Войти</button>
+        <button id="register-open" class="button button-primary" type="button">Присоединиться <span aria-hidden="true">↗</span></button>
+        <button id="user-menu" class="user-menu" type="button" hidden aria-label="Открыть профиль"><span id="user-avatar" class="avatar avatar-small">✦</span><span id="user-name"></span></button>
+      </div>
+    </header>
+
+    <main class="app-layout">
+      <aside class="sidebar">
+        <p class="side-label">ИССЛЕДОВАТЬ</p>
+        <nav class="side-nav" aria-label="Основная навигация">
+          <button class="nav-item active" data-view="feed" type="button"><span>◉</span> Все статьи</button>
+          <button class="nav-item" data-view="following" type="button"><span>✧</span> Мои авторы</button>
+          <button class="nav-item" data-view="subscriptions" type="button"><span>◈</span> Подписки</button>
+          <button class="nav-item" data-view="profile" type="button"><span>◎</span> Моя страница</button>
+          <button class="nav-item" data-view="write" type="button"><span>＋</span> Написать статью</button>
+        </nav>
+        <div class="sidebar-card">
+          <span class="sidebar-icon">✦</span>
+          <p>Твоя вселенная<br>историй начинается здесь.</p>
+          <span class="sidebar-caption">ЧИТАЙ · ПИШИ · ОТКРЫВАЙ</span>
+        </div>
+        <div id="sidebar-account" class="sidebar-account" hidden>
+          <span id="sidebar-avatar" class="avatar avatar-small">✦</span>
+          <span><strong id="sidebar-name"></strong><small>Пилот Орбиты</small></span>
+        </div>
+      </aside>
+
+      <section class="content">
+        <section id="feed-view" class="view">
+          <div class="page-heading">
+            <div><p class="eyebrow"><span></span> ПРЯМО С ОРБИТЫ</p><h1>Истории вселенной</h1><p class="muted">Идеи, открытия и взгляды тех, кто смотрит на звёзды.</p></div>
+          </div>
+          <div class="feed-toolbar"><div id="feed-caption" class="muted">Свежие публикации сообщества</div><span class="feed-count" id="feed-count"></span></div>
+          <p id="feed-message" class="message" role="status" aria-live="polite"></p>
+          <div id="article-list" class="article-list"></div>
+        </section>
+
+        <section id="following-view" class="view" hidden>
+          <div class="page-heading"><div><p class="eyebrow"><span></span> ТВОЯ ЛЕНТА</p><h1>Авторы, за которыми ты следишь</h1><p class="muted">Новые истории из твоей личной орбиты.</p></div></div>
+          <p id="following-message" class="message" role="status" aria-live="polite"></p>
+          <div id="following-list" class="article-list"></div>
+        </section>
+
+        <section id="subscriptions-view" class="view" hidden>
+          <div class="page-heading"><div><p class="eyebrow"><span></span> ДОСТУП К ПУБЛИКАЦИЯМ</p><h1>Подписки</h1><p class="muted">Выбери срок подписки, чтобы продолжить публиковать статьи.</p></div></div>
+          <p id="subscriptions-message" class="message" role="status" aria-live="polite"></p>
+          <div id="subscription-status" class="subscription-summary panel"></div>
+          <div class="subscription-options">
+            <article class="panel subscription-card">
+              <p class="eyebrow"><span></span> КОРОТКИЙ ПЛАН</p>
+              <h2>На месяц</h2>
+              <p>Доступ к публикации статей на один месяц после обработки заказа.</p>
+              <button class="button button-primary" type="button" data-plan-months="1">Заказать на месяц</button>
+            </article>
+            <article class="panel subscription-card subscription-card-featured">
+              <p class="eyebrow"><span></span> ДЛИТЕЛЬНЫЙ ПЛАН</p>
+              <h2>На год</h2>
+              <p>Доступ к публикации статей на двенадцать месяцев после обработки заказа.</p>
+              <button class="button button-primary" type="button" data-plan-months="12">Заказать на год</button>
+            </article>
+          </div>
+          <p class="subscription-disclaimer">Учебная подписка: реальная оплата не подключена. Заказ отправляется через RabbitMQ и активируется после обработки.</p>
+        </section>
+
+        <section id="profile-view" class="view" hidden>
+          <p class="eyebrow"><span></span> ЛИЧНАЯ СТРАНИЦА</p>
+          <div id="profile-content"></div>
+        </section>
+
+        <section id="write-view" class="view" hidden>
+          <p class="eyebrow"><span></span> НОВАЯ ПУБЛИКАЦИЯ</p>
+          <h1>Поделись историей</h1>
+          <p class="muted page-intro">Твои статьи будут открыты всем читателям Орбиты.</p>
+          <div id="plan-notice" class="plan-notice" hidden></div>
+          <form id="article-form" class="panel editor-form">
+            <label for="article-title">Заголовок</label><input id="article-title" name="title" minlength="3" maxlength="160" placeholder="Например, Есть ли жизнь подо льдом Европы?" required>
+            <label for="article-summary">Коротко о статье <span class="label-note">необязательно · до 1000 байт</span></label><textarea id="article-summary" name="summary" rows="2" maxlength="1000" placeholder="Заинтересуй читателя несколькими предложениями"></textarea>
+            <label for="article-body">Текст статьи <span class="label-note">от 20 до 100 000 байт</span></label><textarea id="article-body" name="body" rows="12" minlength="20" maxlength="100000" placeholder="Начни рассказывать свою историю..." required></textarea>
+            <div class="editor-footer"><p id="article-message" class="message" role="status" aria-live="polite"></p><button id="publish-button" class="button button-primary" type="submit">Опубликовать <span aria-hidden="true">↗</span></button></div>
+          </form>
+        </section>
+
+        <section id="article-view" class="view" hidden>
+          <button id="back-to-feed" class="text-button" type="button">← Назад к статьям</button>
+          <div id="article-detail"></div>
+          <section class="comments-section">
+            <h2>Разговор у костра <span id="comment-count" class="count-pill"></span></h2>
+            <div id="comments-list" class="comments-list"></div>
+            <form id="comment-form" class="comment-form" hidden>
+              <label for="comment-input">Оставить комментарий</label>
+              <textarea id="comment-input" rows="3" maxlength="2000" placeholder="Поделись мыслями об этой статье..." required></textarea>
+              <div class="comment-submit-row"><p id="comment-message" class="message" role="status" aria-live="polite"></p><button class="button button-primary" type="submit">Отправить</button></div>
+            </form>
+            <p id="comment-signin" class="muted"></p>
+          </section>
+        </section>
+      </section>
+    </main>
+
+    <dialog id="auth-dialog" class="auth-dialog">
+      <button id="auth-close" class="dialog-close" type="button" aria-label="Закрыть">×</button>
+      <p class="eyebrow"><span></span> ЛИЧНЫЙ КАБИНЕТ</p>
+      <h2 id="auth-title">Рады видеть тебя</h2>
+      <p id="auth-subtitle" class="muted">Войди, чтобы продолжить путешествие.</p>
+      <div class="tabs" role="tablist" aria-label="Выберите действие"><button class="tab active" id="login-tab" type="button" role="tab" aria-selected="true">Вход</button><button class="tab" id="register-tab" type="button" role="tab" aria-selected="false">Регистрация</button></div>
+      <form id="auth-form">
+        <label for="email">Электронная почта</label><input id="email" name="email" type="email" autocomplete="email" placeholder="pilot@universe.space" required>
+        <label for="password">Пароль</label><input id="password" name="password" type="password" autocomplete="current-password" minlength="8" maxlength="72" placeholder="Не менее 8 символов" required>
+        <button id="auth-submit" class="button button-primary full-width" type="submit">Войти в аккаунт <span aria-hidden="true">↗</span></button>
+      </form>
+      <p id="auth-message" class="message" role="status" aria-live="polite"></p>
+    </dialog>
+
+    <footer><span>ОРБИТА · КОСМИЧЕСКАЯ МЕДИАПЛАТФОРМА</span><span>СОЗДАНО НА ЗЕМЛЕ, ДЛЯ ВСЕЛЕННОЙ</span></footer>
+  </body>
+</html>
